@@ -7,9 +7,13 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${workspaceFolder}\\src\\main.c",
                 "-o",
-                "${workspaceFolder}\\main.exe"
+                "${workspaceFolder}\\main.exe",
+                "${workspaceFolder}\\src\\main.c",
+                "-lws2_32",
+                "-lwsock32",
+                "-L",
+                "$MinGW\\lib"
             ],
             "options": {
                 "cwd": "${fileDirname}"

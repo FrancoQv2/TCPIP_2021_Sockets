@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <winsock.h>
+#include "comun.h"
 
 #define TCP 1
 #define SERVER_ADDR "192.168.100.4"
@@ -14,7 +15,13 @@ int main()
     WSADATA wsa;
     SOCKET sockfd, new_socket;
     struct sockaddr_in server, client;
-    int c;
+    int len;
+    int recv_size;
+
+    unsigned char falloRecepcion = 0;
+
+    char* buf_rx = malloc(512);
+    char* buf_tx = malloc(512);
 
     printf("\nInicializando Winsock...\n");
     if(WSAStartup(MAKEWORD(2,2), &wsa) != 0)
@@ -56,12 +63,56 @@ int main()
 
     puts("Esperando conexiones entrantes...");
 
-    c = sizeof(struct sockaddr_in);
-    new_socket = accept(sockfd, (struct sockaddr*)&client, &c);
-    if(new_socket == INVALID_SOCKET)
-        printf("accept fall%c con c%cdigo de error: %d", 162, 162, WSAGetLastError());
+    len = sizeof(struct sockaddr_in);
 
-    printf("Conexi%cn aceptada", 162);
+    /* Aceptar la información de los sockets entrantes en forma iterativa */
+    while(1)
+    {
+        new_socket = accept(sockfd, (struct sockaddr*)&client, &len);
+        if(new_socket < 0)
+        {
+            fprintf(stderr, "accept() fall%c con c%cdigo de error: %d", 162, 162, WSAGetLastError());
+            break;
+        }
+        else
+        {
+            printf("Conexi%cn aceptada al cliente %s\n", 162, inet_ntoa(client.sin_addr));
+
+            falloRecepcion = 0;
+            memset(buf_rx, 0, 512);
+            while(1)    /* leer datos de un cliente hasta que se cierre */
+            {
+                if((recv_size = recv(new_socket, buf_rx, 512, 0)) == SOCKET_ERROR && !falloRecepcion)
+                {
+                    fprintf(stderr, "Recepci%cn fallida...\n", 162);
+                    falloRecepcion = 1;
+                }
+                else if(recv_size == 0)
+                {
+                    falloRecepcion = 0;
+                    printf("Socket cliente cerrado.\n\n");
+                    closesocket(new_socket);
+                    break;
+                }
+                else
+                {
+                    falloRecepcion = 0;
+                    buf_rx[recv_size] = 0;
+                    printf("[CLIENTE]: ");
+                    imprimir(buf_rx);
+                    printf("\n");
+
+                    // Respuesta al cliente
+                    const unsigned char* message = "[SERVER]: Mensaje recibido\n";
+                    send(new_socket, message, strlen(message), 0);
+
+                    closesocket(new_socket);
+
+                    break;
+                }
+            }
+        }
+    }
     
     closesocket(sockfd);
     WSACleanup();

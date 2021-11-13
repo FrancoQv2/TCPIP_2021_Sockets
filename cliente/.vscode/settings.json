@@ -1,0 +1,6 @@
+{
+    "cmake.configureOnOpen": false,
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}\\libraries"
+      ]
+}

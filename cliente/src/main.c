@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <winsock.h>
+#include "comun.h"
 
 #define SERVER_ADDRESS "192.168.100.4"
 #define PORT 8888
@@ -16,9 +18,9 @@ int main()
     SOCKET sockfd;
     struct sockaddr_in server;
 
-    size_t recv_size;
+    int recv_size;
 
-    const char* buf_tx = "Hola servidor, soy un cliente";
+    const char* buf_tx = "Hola servidor, soy un cliente\n";
     char* buf_rx = malloc(100);
 
     printf("\nInicializando Winsock...\n");
@@ -35,7 +37,10 @@ int main()
     // SOCK_STREAM: conexión orientada a streams. Es decir, al protocolo TCP
     // 0: uso del protocolo TCP
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+    {
         printf("No se pudo crear el socket: %d", WSAGetLastError());
+        return 1;
+    }
 
 #else
 
@@ -60,24 +65,27 @@ int main()
     printf("Conectado al servidor.\n");
 
     /* enviar secuencias de testeo */
-    // if(send(sockfd, buf_tx, sizeof(buf_tx), 0) < 0)
-    // {
-    //     printf("Env%co fallido.\n", 160);
-    //     return 1;
-    // }
+    if(send(sockfd, buf_tx, strlen(buf_tx), 0) < 0)
+    {
+        printf("Env%co fallido.\n", 160);
+        return 1;
+    }
 
-    // printf("Informaci%cn enviada.\n", 162);
+    printf("Informaci%cn enviada.\n", 162);
 
     // Recibir una respuesta del servidor
-    // if((recv_size = recv(sockfd, buf_rx, 100, 0)) == SOCKET_ERROR)
-    //     printf("Recepci%cn fallida.\n", 162);
-
-    // printf("Respuesta recibida.\n");
+    if((recv_size = recv(sockfd, buf_rx, 100, 0)) == SOCKET_ERROR)
+    {
+        printf("Recepci%cn fallida.\n", 162);
+        return 1;
+    }
+    
+    printf("Respuesta recibida.\n");
 
     // Añadir el caracter nulo para adaptar bien la cadena antes de imprimir
-    // buf_rx[recv_size] = '\0';
+    buf_rx[recv_size] = '\0';
 
-    // puts(buf_rx);
+    imprimir(buf_rx);
 
     return 0;
 }

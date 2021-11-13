@@ -5,7 +5,7 @@
 #include "comun.h"
 
 #define SERVER_ADDRESS "192.168.100.4"
-#define PORT 8888
+#define PORT 50080
 
 #define TCP 1
 
@@ -20,8 +20,7 @@ int main()
 
     int recv_size;
 
-    const char* buf_tx = "Hola servidor, soy un cliente\n";
-    char* buf_rx = malloc(100);
+    char* buf_rx = malloc(512);
 
     printf("\nInicializando Winsock...\n");
     if(WSAStartup(MAKEWORD(2,2), &wsa) != 0)
@@ -62,30 +61,27 @@ int main()
         return -1;
     }
 
-    printf("Conectado al servidor.\n");
+    printf("Conectado al servidor.\n\n");
 
-    /* enviar secuencias de testeo */
-    if(send(sockfd, buf_tx, strlen(buf_tx), 0) < 0)
+    while(1)
     {
-        printf("Env%co fallido.\n", 160);
-        return 1;
-    }
-
-    printf("Informaci%cn enviada.\n", 162);
-
-    // Recibir una respuesta del servidor
-    if((recv_size = recv(sockfd, buf_rx, 100, 0)) == SOCKET_ERROR)
-    {
-        printf("Recepci%cn fallida.\n", 162);
-        return 1;
+        memset(buf_rx, 0, 200);
+        // Recibir una respuesta del servidor
+        if((recv_size = recv(sockfd, buf_rx, 200, 0)) == SOCKET_ERROR)
+        {
+            printf("Recepci%cn fallida.\n", 162);
+            return -1;
+        }
+        else
+        {
+            if(strcmp(buf_rx, "exit\n") == 0)
+                break;
+            buf_rx[recv_size] = 0;
+            fputs(buf_rx, stdout);
+        }
     }
     
-    printf("Respuesta recibida.\n");
-
-    // Añadir el caracter nulo para adaptar bien la cadena antes de imprimir
-    buf_rx[recv_size] = '\0';
-
-    imprimir(buf_rx);
+    closesocket(sockfd);
 
     return 0;
 }

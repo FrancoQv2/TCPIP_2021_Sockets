@@ -5,7 +5,7 @@
 #include "comun.h"
 
 #define SERVER_ADDRESS "192.168.100.4"
-#define PORT 8888
+#define PORT 50080
 
 #define TCP 1
 
@@ -20,7 +20,6 @@ int main()
 
     int recv_size;
 
-    const char* buf_tx = "Hola servidor, soy un cliente\n";
     char* buf_rx = malloc(100);
 
     printf("\nInicializando Winsock...\n");
@@ -39,13 +38,16 @@ int main()
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     {
         printf("No se pudo crear el socket: %d", WSAGetLastError());
-        return 1;
+        exit(-1);
     }
 
 #else
 
     if((sockfd = Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
+    {
         printf("No se pudo crear el socket: %d", WSAGetLastError());
+        exit(-1);
+    }
     
 #endif
 
@@ -55,13 +57,13 @@ int main()
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
 
-    if(bind(sockfd, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
-    {
-        printf("Fall%c el bind con c%cdigo de error: %d", 162, 162, WSAGetLastError());
-        return -1;
-    }
+    // if(bind(sockfd, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
+    // {
+    //     printf("Fall%c el bind con c%cdigo de error: %d", 162, 162, WSAGetLastError());
+    //     return -1;
+    // }
 
-    puts("Bind hecho");
+    // puts("Bind hecho");
 
     // Conectar al servidor remoto
     if(connect(sockfd, (struct sockaddr*)&server, sizeof(server)))
@@ -72,28 +74,24 @@ int main()
 
     printf("Conectado al servidor.\n");
 
-    /* enviar secuencias de testeo */
-    if(send(sockfd, buf_tx, strlen(buf_tx), 0) < 0)
+    while(1)
     {
-        printf("Env%co fallido.\n", 160);
-        return 1;
+        memset(buf_rx, 0, 512);
+        // Recibir una respuesta del servidor
+        if((recv_size = recv(sockfd, buf_rx, 200, 0)) == SOCKET_ERROR)
+        {
+            printf("Recepci%cn fallida.\n", 162);
+            return -1;
+        }
+
+        imprimir(buf_rx);
+
+        if(strcmp(buf_rx, "exit\n") == 0)
+        {
+            closesocket(sockfd);
+            break;
+        }
     }
-
-    printf("Informaci%cn enviada.\n", 162);
-
-    // Recibir una respuesta del servidor
-    if((recv_size = recv(sockfd, buf_rx, 100, 0)) == SOCKET_ERROR)
-    {
-        printf("Recepci%cn fallida.\n", 162);
-        return 1;
-    }
-    
-    printf("Respuesta recibida.\n");
-
-    // Añadir el caracter nulo para adaptar bien la cadena antes de imprimir
-    buf_rx[recv_size] = '\0';
-
-    imprimir(buf_rx);
 
     return 0;
 }

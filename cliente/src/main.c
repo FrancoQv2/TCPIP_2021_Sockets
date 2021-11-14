@@ -83,15 +83,16 @@ int main()
             printf("Recepci%cn fallida.\n", 162);
             return -1;
         }
-
-        imprimir(buf_rx);
-
-        if(strcmp(buf_rx, "exit\n") == 0)
+        else
         {
-            closesocket(sockfd);
-            break;
+            if(strcmp(buf_rx, "exit\n") == 0)
+                break;
+            buf_rx[recv_size] = 0;
+            fputs(buf_rx, stdout);
         }
     }
+
+    closesocket(sockfd);
 
     return 0;
 }

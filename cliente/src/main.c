@@ -69,7 +69,7 @@ int main()
         return -1;
     }
 
-    printf("Conectado al servidor de IP %s y puerto %s.\n\n", inet_ntoa(server.sin_addr), htons(server.sin_port));
+    printf("Conectado al servidor de IP %s y puerto %u.\n\n", inet_ntoa(server.sin_addr), htons(server.sin_port));
 
     while(1)
     {

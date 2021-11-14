@@ -69,6 +69,9 @@ int main()
 
     len = sizeof(struct sockaddr_in);
 
+    client.sin_port = htonl(2500);
+    client.sin_family = AF_INET;
+
     new_socket = accept(sockfd, (struct sockaddr*)&client, &len);
     if(new_socket < 0)
     {

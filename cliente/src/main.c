@@ -5,7 +5,7 @@
 #include "comun.h"
 
 #define SERVER_ADDRESS "192.168.100.4"
-#define PORT 50080
+#define PORT 2500
 
 #define TCP 1
 
@@ -54,6 +54,14 @@ int main()
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
 
+    if(bind(sockfd, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
+    {
+        printf("Fall%c el bind con c%cdigo de error: %d", 162, 162, WSAGetLastError());
+        return -1;
+    }
+
+    puts("Bind hecho");
+
     // Conectar al servidor remoto
     if(connect(sockfd, (struct sockaddr*)&server, sizeof(server)))
     {
@@ -61,7 +69,7 @@ int main()
         return -1;
     }
 
-    printf("Conectado al servidor.\n\n");
+    printf("Conectado al servidor de IP %s y puerto %s.\n\n", inet_ntoa(server.sin_addr), htons(server.sin_port));
 
     while(1)
     {

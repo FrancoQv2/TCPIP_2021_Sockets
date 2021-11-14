@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <winsock.h>
+#include <errno.h>
 #include "comun.h"
 
 #define TCP 1
@@ -41,7 +42,7 @@ int main()
 
 #else
 
-    if((s = Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
+    if((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
         printf("No se pudo crear el socket: %d", WSAGetLastError());
     
 #endif
@@ -85,7 +86,10 @@ int main()
         printf("[SERVIDOR]: Escribir un mensaje\n");
         fgets(buf_tx, 200, stdin);
         if(send(new_socket, buf_tx, strlen(buf_tx), 0) < 0)
+        {
             fprintf(stderr, "Env%co fallido.\n", 161);
+            return -1;
+        }
 
         if(strcmp(buf_tx, "exit\n") == 0)
         {

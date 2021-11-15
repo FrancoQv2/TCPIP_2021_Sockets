@@ -27,7 +27,7 @@ Estos argumentos quedarían como sigue...
         "${workspaceFolder}\\src\\main.c",
         "${workspaceFolder}\\src\\implementations\\*.c",
         "-lws2_32",
-        "-lsock32",
+        "-lwsock32",
         "-L",
         "$MinGW\\lib",
         "-I",

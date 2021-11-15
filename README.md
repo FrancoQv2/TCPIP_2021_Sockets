@@ -36,13 +36,12 @@ Estos argumentos quedarían como sigue...
 
 De esta forma, la estructura quedaría como sigue en el directorio principal de trabajo (ya sea el del servidor o el del cliente):
 
-.
-+-- .vscode
-|   +-- launch.json
-|   +--tasks.json
-libraries
-| /* archivos de cabecera */
-src
-| main.c
-| implementations
-| | /* implementación de archivos de cabecera */
+EntornoTrabajo
+ ┣ .vscode
+ ┃ ┣ launch.json
+ ┃ ┗ tasks.json
+ ┣ libraries
+ ┣ src
+ ┃ ┣ implementations
+ ┃ ┗ main.c
+ ┗ main.exe

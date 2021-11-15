@@ -2,30 +2,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include <winsock.h>
+#include <locale.h>
 #include "comun.h"
 
-#define SERVER_ADDRESS "192.168.100.4"
-#define PORT 50080
+#define CLIENT_SERVER 2500
+#define BUFFER_MAX    200
 
-#define TCP 1
+#define TCP 0
 
 // Se agrega la librería ws2_32 a lista de dependencias
 #pragma comment(lib, "ws2_32.lib")
 
 int main()
 {
+    // Permite la muestra de caracteres del ASCII extendido
+    setlocale(LC_ALL, "");
+
     WSADATA wsa;
-    SOCKET sockfd;
+    SOCKET sockfd, sockfd_server;
     struct sockaddr_in server;
+    struct sockaddr_in client;
+    struct sockaddr_in from;
+
+    int length, n;
 
     int recv_size;
 
-    char* buf_rx = malloc(100);
+    char* buf_rx = malloc(512);
 
     printf("\nInicializando Winsock...\n");
     if(WSAStartup(MAKEWORD(2,2), &wsa) != 0)
     {
-        printf("Fall%c. C%cdigo de error: %d", 0xa2, 0xa2, WSAGetLastError());
+        fprintf(stderr, "%ls %d", L"Falló. Código de error: ", WSAGetLastError());
         return 1;
     }
 
@@ -37,58 +45,52 @@ int main()
     // 0: uso del protocolo TCP
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     {
-        printf("No se pudo crear el socket: %d", WSAGetLastError());
+        fprintf(stderr, "No se pudo crear el socket: %d", WSAGetLastError());
         exit(-1);
     }
 
 #else
 
-    if((sockfd = Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
+    if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET)
     {
-        printf("No se pudo crear el socket: %d", WSAGetLastError());
+        fprintf(stderr, "No se pudo crear el socket: %d", WSAGetLastError());
         exit(-1);
     }
     
 #endif
 
-    printf("Socket creado.\n");
+    puts("Socket creado.\n");
+    
+    client.sin_family = AF_INET;
+    client.sin_port = htons(CLIENT_SERVER);
+    client.sin_addr.s_addr = INADDR_ANY;
 
-    server.sin_addr.s_addr = inet_addr(SERVER_ADDRESS);
-    server.sin_family = AF_INET;
-    server.sin_port = htons(PORT);
+    memset(&(client.sin_zero), 0, 8);
 
-    // if(bind(sockfd, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
-    // {
-    //     printf("Fall%c el bind con c%cdigo de error: %d", 162, 162, WSAGetLastError());
-    //     return -1;
-    // }
-
-    // puts("Bind hecho");
-
-    // Conectar al servidor remoto
-    if(connect(sockfd, (struct sockaddr*)&server, sizeof(server)))
+    if(bind(sockfd, (struct sockaddr*)&client, sizeof(struct sockaddr)) == SOCKET_ERROR)
     {
-        printf("La conexi%cn con el servidor fall%c.\n", 162, 162);
+        fprintf(stderr, "%ls %d", L"Falló el bind con código de error: ", WSAGetLastError());
         return -1;
     }
-
-    printf("Conectado al servidor.\n");
+    
+    length = sizeof(struct sockaddr_in);
 
     while(1)
     {
         memset(buf_rx, 0, 512);
-        // Recibir una respuesta del servidor
-        if((recv_size = recv(sockfd, buf_rx, 200, 0)) == SOCKET_ERROR)
+
+        // Recibir una respuesta de un servidor
+        if((recv_size = recvfrom(sockfd, buf_rx, BUFFER_MAX, 0, (struct sockaddr*)&from, &length)) == SOCKET_ERROR)
         {
-            printf("Recepci%cn fallida.\n", 162);
-            return -1;
+            fprintf(stderr, "%ls", L"Recepción fallida.\n");
         }
         else
         {
             if(strcmp(buf_rx, "exit\n") == 0)
                 break;
             buf_rx[recv_size] = 0;
-            fputs(buf_rx, stdout);
+            printf("[%s:%d]: ", inet_ntoa(from.sin_addr), ntohs(from.sin_port));
+            imprimir(buf_rx);
         }
     }
 

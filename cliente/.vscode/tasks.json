@@ -8,7 +8,7 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "-o",
-                "${workspaceFolder}\\main.exe",
+                "${workspaceFolder}\\client.exe",
                 "${workspaceFolder}\\src\\main.c",
                 "${workspaceFolder}\\src\\implementations\\*.c",
                 "-lws2_32",

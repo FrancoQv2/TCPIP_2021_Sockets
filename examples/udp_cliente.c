@@ -8,6 +8,11 @@
 
 #include <arpa/inet.h>  // Para inet_ntoa()
 
+#include <stdlib.h>     // Para exit()
+#include <string.h>
+#include <strings.h>    // Para bzero()
+#include <unistd.h>     // Para close()
+
 void error(char *);
 
 int main(int argc, char *argv[]) {
@@ -38,22 +43,27 @@ int main(int argc, char *argv[]) {
     server.sin_port = htons(atoi(argv[2]));
     length = sizeof(struct sockaddr_in);
 
-    printf("Please enter the message: ");
-    bzero(buffer, 256);
-    fgets(buffer, 255, stdin);
+    while (1) {
+        
     
-    n = sendto(sock, buffer, strlen(buffer), 0, &server, length);
-    if (n < 0) {
-        error("Sendto");
+
+        printf("Please enter the message: ");
+        bzero(buffer, 256);
+        fgets(buffer, 255, stdin);
+        
+        n = sendto(sock, buffer, strlen(buffer), 0, (struct sockaddr *)&server, length);
+        if (n < 0) {
+            error("Sendto");
+        }
+        
+        n = recvfrom(sock, buffer, 256, 0, (struct sockaddr *)&from, &length);
+        if (n < 0) {
+            error("recvfrom");
+        }
+        
+        write(1, "Got an ack: ", 12);
+        write(1, buffer, n);
     }
-    
-    n = recvfrom(sock, buffer, 256, 0, &from, &length);
-    if (n < 0) {
-        error("recvfrom");
-    }
-    
-    write(1, "Got an ack: ", 12);
-    write(1, buffer, n);
 }
 
 void error(char *msg) {

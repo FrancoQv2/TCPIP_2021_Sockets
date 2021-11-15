@@ -5,6 +5,11 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#include <stdlib.h>     // Para exit()
+#include <strings.h>    // Para bzero()
+#include <unistd.h>     // Para close()
+#include <arpa/inet.h>  // Para inet_ntoa()
+
 void error(char *msg) {
     perror(msg);
     exit(1);
@@ -63,5 +68,6 @@ int main(int argc, char *argv[]) {
     if (n < 0) {
         error("ERROR writing to socket");
     }
+    close(sockfd);
     return 0;
 }

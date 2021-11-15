@@ -29,6 +29,7 @@ int main(int argc, char const *argv[]) {
     servidor.sin_family = AF_INET;
 
     servidor.sin_port = htons(PORT);            // Convierte PORT al numero de red
+    printf("b %i\n",servidor.sin_port);
     servidor.sin_addr.s_addr = INADDR_ANY;      // Coloca ip automaticamente (0.0.0.0)
     
     bzero(&(servidor.sin_zero), 8);             // Coloca ceros en resto estructura

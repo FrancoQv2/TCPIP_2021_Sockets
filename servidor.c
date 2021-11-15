@@ -5,16 +5,23 @@
 #include <netdb.h>
 
 #include <stdlib.h>     // Para exit()
+#include <string.h>
 #include <strings.h>    // Para bzero()
 #include <unistd.h>     // Para close()
 #include <arpa/inet.h>  // Para inet_ntoa()
 
+#include <time.h>
+
 #define	IP_SERVER	((in_addr_t) 0xc0a80132)
 
-#define PORT    50005   // Puerto de conexion
+#define PORT    2500   // Puerto de conexion
+//#define PORT    50000 + rand() % 101   // Puerto de conexion
 #define BACKLOG 5       // Numero de conexiones permitidas
 
 int main(int argc, char const *argv[]) {
+    srand (time(NULL));
+    printf("a %i\n", PORT);
+
     int sockfd1, sockfd2;           // Descriptores de archivo
     int tama_sin;
     struct sockaddr_in servidor;    // Info de la direccion de servidor
@@ -41,8 +48,11 @@ int main(int argc, char const *argv[]) {
     servidor.sin_family = AF_INET;
 
     servidor.sin_port = htons(PORT);            // Convierte PORT al numero de red
-    //servidor.sin_addr.s_addr = INADDR_ANY;      // Coloca ip automaticamente (0.0.0.0)
-    servidor.sin_addr.s_addr = IP_SERVER;
+    //servidor.sin_port = PORT;            // Convierte PORT al numero de red
+    printf("b %i\n",servidor.sin_port);
+    
+    servidor.sin_addr.s_addr = INADDR_ANY;      // Coloca ip automaticamente (0.0.0.0)
+    //servidor.sin_addr.s_addr = IP_SERVER;
 
     // 192.168.1.50
     // 1100 0000.1010 1000.0000 0001.0011 0010
@@ -62,21 +72,27 @@ int main(int argc, char const *argv[]) {
         exit(-1);
     }
 
-    //printf("Escribe un mensaje: ");
-    //fgets(mensaje,sizeof(mensaje),stdin);
+
+    tama_sin = sizeof(struct sockaddr_in);
+    if ((sockfd2 = accept(sockfd1, (struct sockaddr *)&cliente, &tama_sin)) < 0) {
+        printf("Error en accept()\n");
+        exit(-1);
+    }
+    printf("Tenes una conexion desde %s \n", inet_ntoa(cliente.sin_addr));
+
 
     while (1) {
+        memset(mensaje,0,200);
 
-        tama_sin = sizeof(struct sockaddr_in);
-        if ((sockfd2 = accept(sockfd1, (struct sockaddr *)&cliente, &tama_sin)) < 0) {
-            printf("Error en accept()\n");
-            exit(-1);
-        }
-
-        printf("Tenes una conexion desde %s \n", inet_ntoa(cliente.sin_addr));
+        printf("Escribe un mensaje: ");
+        fgets(mensaje,200,stdin);
 
         send(sockfd2, mensaje, sizeof(mensaje), 0);
-        close(sockfd2);
+
+        if (strcmp(mensaje,"exit\n") == 0) {
+            close(sockfd2);
+            break;
+        }
     }
     close(sockfd1);
 }

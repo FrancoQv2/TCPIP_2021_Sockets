@@ -6,24 +6,30 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+#include <stdlib.h>     // Para exit()
+#include <string.h>
+#include <strings.h>    // Para bzero()
+#include <unistd.h>     // Para close()
+#include <arpa/inet.h>  // Para inet_ntoa()
+
 void error(char *msg) {
     perror(msg);
     exit(0);
 }
 
 int main(int argc, char *argv[]) {
-    int sock, length, fromlen, n;
+    int socketfd, length, client_len, n;
     struct sockaddr_in server;
-    struct sockaddr_in from;
-    char buf[1024];
+    struct sockaddr_in client;
+    char buffer[1024];
 
     if (argc < 2) {
         fprintf(stderr, "ERROR, no port provided\n");
         exit(0);
     }
 
-    sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock < 0) {
+    socketfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (socketfd < 0) {
         error("Opening socket");
     }
     
@@ -34,21 +40,21 @@ int main(int argc, char *argv[]) {
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(atoi(argv[1]));
     
-    if (bind(sock, (struct sockaddr *)&server, length) < 0) {
+    if (bind(socketfd, (struct sockaddr *)&server, length) < 0) {
         error("binding");
     }
     
-    fromlen = sizeof(struct sockaddr_in);
+    client_len = sizeof(struct sockaddr_in);
     
     while (1) {
-        n = recvfrom(sock, buf, 1024, 0, (struct sockaddr *)&from, &fromlen);
+        n = recvfrom(socketfd, buffer, 1024, 0, (struct sockaddr *)&client, &client_len);
         if (n < 0) {
             error("recvfrom");
         }
         write(1, "Received a datagram: ", 21);
-        write(1, buf, n);
-        n = sendto(sock, "Got your message\n", 17,
-                   0, (struct sockaddr *)&from, fromlen);
+        write(1, buffer, n);
+        n = sendto(socketfd, "Got your message\n", 17,
+                   0, (struct sockaddr *)&client, client_len);
         if (n < 0) {
             error("sendto");
         }

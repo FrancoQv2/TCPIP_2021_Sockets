@@ -5,11 +5,11 @@
 #include "sockets.h"
 #include <time.h>
 #include <locale.h>
+#include <conio.h>
+#include <Windows.h>
 
 #define TCP 0
-#define LOCAL_BROADCAST "192.168.100.255"
 #define CLIENTS_PORT 2500
-#define BUFFER_MAX 200
 
 // Se agrega la librería ws2_32 a lista de dependencias
 #pragma comment(lib, "ws2_32.lib")
@@ -17,13 +17,16 @@
 int main()
 {
     setlocale(LC_ALL, "");
+    SetConsoleCP(1252);
+    SetConsoleOutputCP(1252);
+
     srand(time(NULL));
 
     WSADATA wsa;
     SOCKET sockfd;
     struct sockaddr_in server;
     struct sockaddr_in client;
-    int SERVER_PORT = 50000 + rand() % 101;
+    int server_port = 50000 + rand() % 101;
     
     char* buf_tx = malloc(512);
     
@@ -47,7 +50,7 @@ int main()
     // Preparar la estructura sockaddr_in
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(SERVER_PORT);
+    server.sin_port = htons(server_port);
 
     if(bind(sockfd, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
     {
@@ -65,19 +68,69 @@ int main()
         fprintf(stderr, "%ls", L"Error en la habilitación del broadcast.");
         exit(-1);
     }
-
+    
+    int index;
     /* Aceptar la información de los sockets entrantes en forma iterativa */
     while(1)
     {
-        printf("[SERVIDOR]: ");
+        size_t teclas_apretadas;
         do
         {
+            teclas_apretadas = 0;
+            printf("[SERVIDOR]: ");
+
             fflush(stdin);
-            memset(buf_tx, 0, BUFFER_MAX);
-            fgets(buf_tx, BUFFER_MAX, stdin);
-        } while(strlen(buf_tx) > BUFFER_MAX);
+            memset(buf_tx, 0, BUFFER_MAX+2);
+            
+            int tecla = 0;
+            index = 0;
+            while(tecla != 13)  // El bucle se repetirá mientras la tecla apretada no sea el enter
+            {
+                if(_kbhit())
+                {
+                    tecla = _getch();
+
+                    // Para omitir las teclas Fn
+                    if(_kbhit())
+                    {
+                        tecla = _getch();
+                        continue;
+                    }
+                    
+                    if(tecla != 13)
+                    {
+                        // La tecla 8 es el retroceso
+                        if(tecla != 8)
+                        {
+                            if(teclas_apretadas < BUFFER_MAX)
+                            {
+                                fputc(tecla, stdout);
+                                teclas_apretadas++;
+                                buf_tx[index++] = tecla;
+                            }
+                        }
+                        else if(teclas_apretadas > 0) // Que solo se permita retroceder si ya se escribió algo
+                        {
+                            teclas_apretadas--;
+                            if(teclas_apretadas < BUFFER_MAX)
+                                buf_tx[--index] = 0;
+                            printf("\b \b");
+                        }
+                    }
+                }
+            }
+
+            fputc('\n', stdout);
+
+            // if(teclas_apretadas > BUFFER_MAX)
+            //     printf("%ls", L"\n¡No se deben superar los 200 caracteres!\n\n");
+
+        } while(teclas_apretadas > BUFFER_MAX);
+
+        buf_tx[index++] = '\n';
+        buf_tx[index++] = '\0';
         
-        if(sendto(sockfd, buf_tx, BUFFER_MAX, 0, (struct sockaddr*)&client, sizeof(struct sockaddr_in)) < 0)
+        if(sendto(sockfd, buf_tx, index, 0, (struct sockaddr*)&client, sizeof(struct sockaddr_in)) < 0)
         {
             fprintf(stderr, "No se pudo enviar mensaje");
             exit(-1);

@@ -10,13 +10,13 @@
                 "-o",
                 "${workspaceFolder}\\server.exe",
                 "${workspaceFolder}\\src\\main.c",
-                "${workspaceFolder}\\src\\implementations\\*.c",
+                "${workspaceFolder}\\..\\dependencies\\implementations\\*.c",
                 "-lws2_32",
                 "-lwsock32",
                 "-L",
                 "$MinGW\\lib",
                 "-I",
-                "${workspaceFolder}\\libraries"
+                "${workspaceFolder}\\..\\dependencies\\libraries"
             ],
             "options": {
                 "cwd": "${fileDirname}"

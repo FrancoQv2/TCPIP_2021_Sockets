@@ -4,9 +4,9 @@
 #include <winsock.h>
 #include <locale.h>
 #include "comun.h"
+#include <Windows.h>
 
 #define CLIENT_SERVER 2500
-#define BUFFER_MAX    200
 
 #define TCP 0
 
@@ -15,8 +15,9 @@
 
 int main()
 {
-    // Permite la muestra de caracteres del ASCII extendido
     setlocale(LC_ALL, "");
+    SetConsoleCP(1252);
+    SetConsoleOutputCP(1252);
 
     WSADATA wsa;
     SOCKET sockfd, sockfd_server;
@@ -80,7 +81,7 @@ int main()
         memset(buf_rx, 0, 512);
 
         // Recibir una respuesta de un servidor
-        if((recv_size = recvfrom(sockfd, buf_rx, BUFFER_MAX, 0, (struct sockaddr*)&from, &length)) == SOCKET_ERROR)
+        if((recv_size = recvfrom(sockfd, buf_rx, BUFFER_MAX+2, 0, (struct sockaddr*)&from, &length)) == SOCKET_ERROR)
         {
             fprintf(stderr, "%ls", L"Recepción fallida.\n");
         }
@@ -90,7 +91,7 @@ int main()
                 break;
             buf_rx[recv_size] = 0;
             printf("[%s:%d]: ", inet_ntoa(from.sin_addr), ntohs(from.sin_port));
-            imprimir(buf_rx);
+            fputs(buf_rx, stdout);
         }
     }
 

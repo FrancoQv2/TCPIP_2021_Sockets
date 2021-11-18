@@ -1,0 +1,65 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "Compilar WIN Client",
+            "command": "C:\\MinGW\\bin\\gcc.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-o",
+                "${workspaceFolder}\\client_win.exe",
+                "${workspaceFolder}\\app_client\\src\\client_win.c",
+                "${workspaceFolder}\\dependencies\\implementations\\*.c",
+                "-lws2_32",
+                "-lwsock32",
+                "-L",
+                "$MinGW\\lib",
+                "-I",
+                "${workspaceFolder}\\dependencies\\libraries"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Tarea generada por el depurador."
+        },
+        {
+            "type": "cppbuild",
+            "label": "Compilar WIN Server",
+            "command": "C:\\MinGW\\bin\\gcc.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-o",
+                "${workspaceFolder}\\server_win.exe",
+                "${workspaceFolder}\\app_server\\src\\server_win.c",
+                "${workspaceFolder}\\dependencies\\implementations\\*.c",
+                "-lws2_32",
+                "-lwsock32",
+                "-L",
+                "$MinGW\\lib",
+                "-I",
+                "${workspaceFolder}\\dependencies\\libraries"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Tarea generada por el depurador."
+        }
+    ],
+    "version": "2.0.0"
+}

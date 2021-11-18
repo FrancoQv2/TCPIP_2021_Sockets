@@ -1,17 +1,25 @@
-#server: 
-#	@gcc servidor.c -o servidor.out
+SERVER = server
+CLIENT = client
 
-#client: 
-#	@gcc cliente.c -o cliente.out
+SERVER_WIN = server_win
+CLIENT_WIN = client_win
 
-tcp:
-	@gcc servidor.c -o servidor.out
+DIR_SERVER = app_server/src
+DIR_CLIENT = app_client/src
 
-udp:
-	@gcc servidor_udp.c -o servidor_udp.out
+IMP = dependencies/implementations
+LIB = dependencies/libraries
 
-udp_ej:
-	@gcc ejemplos/udp_servidor.c -o ejemplos/udp_servidor.out
+FLGS = -lws2_32 -lwsock32
 
-run_ej:
-	@./ejemplos/udp_servidor.out 2500
+server:
+	@gcc $(DIR_SERVER)/$(SERVER).c -o $(SERVER).out
+
+server_win: $(DIR_SERVER)/$(SERVER_WIN).c
+	@gcc -o $(SERVER_WIN).exe $(DIR_SERVER)/$(SERVER_WIN).c $(IMP)/*.c $(FLGS) -I $(LIB)
+
+client:
+	@gcc $(DIR_CLIENT)/$(CLIENT).c -o $(CLIENT).out
+
+client_win: $(DIR_CLIENT)/$(CLIENT_WIN).c
+	@gcc -o $(CLIENT_WIN).exe $(DIR_CLIENT)/$(CLIENT_WIN).c $(IMP)/*.c $(FLGS) -I $(LIB)

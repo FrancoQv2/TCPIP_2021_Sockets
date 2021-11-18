@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "comun.h": "c",
-        "errno.h": "c",
-        "stdio.h": "c",
-        "sockets.h": "c"
-    }
-}

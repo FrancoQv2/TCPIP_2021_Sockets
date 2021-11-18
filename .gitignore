@@ -1,2 +1,3 @@
+# Ignoro los archivos ejecutables
 *.exe
 *.out

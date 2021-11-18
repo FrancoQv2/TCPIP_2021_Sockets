@@ -1,2 +1,2 @@
-cliente/server.exe
-servidor/client.exe
+*.exe
+*.out

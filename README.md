@@ -45,3 +45,28 @@ EntornoTrabajo \
  ┃ ┣ implementations \
  ┃ ┗ main.c \
  ┗ main.exe 
+ 
+ 
+     while (1) {
+        printf("[SERVER]: ");
+        
+        do {
+            bzero(buffer, BUFFER_MAX);
+            fgets(buffer, BUFFER_MAX, stdin);
+                if((int)strlen(buffer)+1 > 199) flag_ok = 0;
+        } while ((int)strlen(buffer)+1 > 199 );
+        
+        if(flag_ok){
+            n = sendto(socketfd, buffer, BUFFER_MAX, 0, (struct sockaddr *)&client, sizeof(struct sockaddr_in));    
+        }
+        else{
+            printf("Tamanio de la trama excedido");
+            while(getchar() != '\n');
+            flag_ok = 1;
+        }
+        if (n < 0) {
+            printf("sendto()");
+        }
+        
+    }
+}

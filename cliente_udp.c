@@ -13,7 +13,10 @@
 
 #include <arpa/inet.h>  // Para inet_ntoa()
 
-#define CLIENT_SERVER     2500
+#include <time.h>
+
+
+#define CLIENT_PORT 2500
 #define BUFFER_MAX  200
 
 void inline error(char *msg) {
@@ -22,23 +25,25 @@ void inline error(char *msg) {
 }
 
 int main(int argc, char *argv[]) {
-    int socketfd_server, length, n;
-    int socketfd;
+    time_t t;
+    struct tm *tm;
+    char   actual_date[14],actual_time[10];
+
+    int    socketfd, length, n;
     struct sockaddr_in server;
     struct sockaddr_in client;
-    struct sockaddr_in from;
-    struct hostent *hp;
-    char buffer[BUFFER_MAX];
+    char   buffer[BUFFER_MAX];
 
     printf("Bienvenido!\nEsta es la aplicacion Cliente\n\n");
-
+    
     socketfd = socket(AF_INET, SOCK_DGRAM, 0);
+
     if (socketfd < 0) {
         error("socket()");
     }
 
     client.sin_family = AF_INET;
-    client.sin_port = htons(CLIENT_SERVER);
+    client.sin_port = htons(CLIENT_PORT);
     client.sin_addr.s_addr = INADDR_ANY;        // Ip local broadcast 255.255.255.255
     bzero(&(client.sin_zero), 8);               // Coloca ceros en resto estructura
 
@@ -49,12 +54,18 @@ int main(int argc, char *argv[]) {
     length = sizeof(struct sockaddr_in);
 
     while (1) {
-        n = recvfrom(socketfd, buffer, BUFFER_MAX, 0, (struct sockaddr *)&from, &length);
+        n=recvfrom(socketfd, buffer, BUFFER_MAX, 0, (struct sockaddr *)&server, &length);
         if (n < 0) {
             error("recvfrom()");
         }
 
-        printf("[][%s:%d]: %s", inet_ntoa(from.sin_addr), ntohs(from.sin_port), buffer);
+        t = time(NULL);
+        tm = localtime(&t);
+        strftime(actual_date, 14, "%d/%m/%Y", tm);
+        strftime(actual_time, 10, "%H:%M:%S", tm);
+
+        printf("[%s-%s][%s:%d]: %s",actual_date,actual_time,inet_ntoa(server.sin_addr),ntohs(server.sin_port),buffer);
         bzero(buffer, BUFFER_MAX);
     }
 }
+

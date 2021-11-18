@@ -1,7 +1,7 @@
 /* Creates a datagram server. The port number is passed as an argument. This server runs forever */
 
 #include <stdio.h>
-#include <stdlib.h>  // Para exit()
+#include <stdlib.h>     // Para exit()
 #include <string.h>
 #include <strings.h>    // Para bzero()
 #include <unistd.h>     // Para close()
@@ -12,20 +12,22 @@
 #include <netdb.h>
 #include <arpa/inet.h>  // Para inet_ntoa()
 
+#include <errno.h>
+
 #include <time.h>
 
-// 192.168.10.255
-// 1100 0000.1010 1000.0000 1010.1111 1111
-// C0.A8.0A.ff
-//#define	LOCAL_BROADCAST	((in_addr_t) 0xc0a80aff)
 #define	LOCAL_BROADCAST	"192.168.10.255"
-#define CLIENTS_PORT    2500
+#define CLIENT_PORT     2500
 #define BUFFER_MAX      200
 
+void inline error(char *msg) {
+    perror(msg);
+    exit(0);
+}
 
 int main(int argc, char *argv[]) {
     srand(time(NULL));
-    int PORT_SERVER = 50000+rand()%101;
+    int SERVER_PORT = 50000+rand()%101;
 
     int socketfd, length, n;
     struct sockaddr_in server;
@@ -37,28 +39,31 @@ int main(int argc, char *argv[]) {
     // Creo el socket
     socketfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (socketfd < 0) {
-        printf("socket()");
+        error("socket()");
     }
 
-    // Asocio una ip y puerto al socket
+    // Configuro los parametros del server
     server.sin_family = AF_INET;                // Familiy internet IPv4
-    server.sin_port = htons(PORT_SERVER);       // Puerto del servidor
+    server.sin_port = htons(SERVER_PORT);       // Puerto del servidor
     server.sin_addr.s_addr = INADDR_ANY;
-
     bzero(&(server.sin_zero), 8);               // Coloca ceros en resto estructura
 
+    // Asocio la IP y puerto del server al socket
     if (bind(socketfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in)) < 0) {
-        printf("bind()");
+        error("bind()");
     }
 
+    // Configuro los parametros de los clientes
     client.sin_family = AF_INET;                            // Familiy internet IPv4
-    client.sin_port = htons(CLIENTS_PORT);                  // Puerto del servidor
+    client.sin_port = htons(CLIENT_PORT);                   // Puerto del servidor
     client.sin_addr.s_addr = inet_addr(LOCAL_BROADCAST);    // Ip local broadcast 192.168.10.255
+    //client.sin_addr.s_addr = INADDR_BROADCAST;              // Ip broadcast 255.255.255.255
     bzero(&(server.sin_zero), 8);
-    int broad = 1;
-    if (setsockopt(socketfd,SOL_SOCKET,SO_BROADCAST,(void *)&broad,sizeof(broad)) < 0) {
-        printf("Fallo xd");
-        exit(-1);
+
+    // Configuro las opciones del socket para que acepte broadcast
+    int broadcast = 1;
+    if (setsockopt(socketfd,SOL_SOCKET,SO_BROADCAST,(void *)&broadcast,sizeof(broadcast)) < 0) {
+        error("setsockopt()");
     }
 
     while (1) {
@@ -68,11 +73,9 @@ int main(int argc, char *argv[]) {
             bzero(buffer, BUFFER_MAX);
             fgets(buffer, BUFFER_MAX, stdin);
         } while (strlen(buffer) > BUFFER_MAX);
-
-        n = sendto(socketfd, buffer, BUFFER_MAX, 0, (struct sockaddr *)&client, sizeof(struct sockaddr_in));    
-        puts(buffer);
-        if (n < 0) {
-            printf("sendto()");
+         
+        if (sendto(socketfd,buffer,BUFFER_MAX,0,(struct sockaddr *)&client,sizeof(struct sockaddr_in))  < 0) {
+            error("sendto()");
         }
     }
 }

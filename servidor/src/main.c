@@ -68,6 +68,8 @@ int main()
         fprintf(stderr, "%ls", L"Error en la habilitación del broadcast.");
         exit(-1);
     }
+
+    printf("%ls", L"¡Bienvenido a la consola del servidor!\n\n");
     
     int index;
     /* Aceptar la información de los sockets entrantes en forma iterativa */

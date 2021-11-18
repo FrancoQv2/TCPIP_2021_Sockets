@@ -5,6 +5,7 @@
 #include <locale.h>
 #include "comun.h"
 #include <Windows.h>
+#include <time.h>
 
 #define CLIENT_SERVER 2500
 
@@ -76,6 +77,8 @@ int main()
     
     length = sizeof(struct sockaddr_in);
 
+    printf("%ls", L"¡Bienvenido a la consola de un cliente!\n\n");
+
     while(1)
     {
         memset(buf_rx, 0, 512);
@@ -90,8 +93,17 @@ int main()
             if(strcmp(buf_rx, "exit\n") == 0)
                 break;
             buf_rx[recv_size] = 0;
+
+            struct tm* FechaActual;
+            time_t tActual;
+            tActual = time(&tActual);
+            FechaActual = localtime(&tActual);
+            
+            printf("[%02d/%02d/%d ", FechaActual->tm_mday, FechaActual->tm_mon, FechaActual->tm_year+1900);
+            printf("%02d:%02d:%02d]", FechaActual->tm_hour, FechaActual->tm_min, FechaActual->tm_sec);
             printf("[%s:%d]: ", inet_ntoa(from.sin_addr), ntohs(from.sin_port));
             fputs(buf_rx, stdout);
+            printf("\n");
         }
     }
 

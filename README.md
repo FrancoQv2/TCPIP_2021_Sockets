@@ -77,7 +77,7 @@ La estructura final del proyecto es:
               ┗ client.c \
         ┣ app_server \
             ┣ src \
-              ┗ client.c \
+              ┗ server.c \
         ┣ docs \
         ┣ examples \
         ┗ server.exe 

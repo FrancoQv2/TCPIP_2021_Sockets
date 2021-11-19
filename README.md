@@ -1,72 +1,83 @@
-# tcp_ip_sockets
-Aplicación utilizando sockets para TCP/IP
+# Aplicación utilizando sockets para TCP/IP
 
-La carpeta .vscode contiene los archivos launch.json y tasks.json
+## Integrantes
 
-En launch.json, en la etiqueta "program" se escribe la ruta donde estará el archivo ejecutable, incluyendo al ejecutable.
+- Boeri, Benjamín
+- Israilev, Mateo
+- Murcani, Julián David
+- Quevedo, Franco
+
+## Descripción
+
+Esta aplicación permite enviar mediante una aplicación de sockets y utilizando el protocolo UDP, mensajes de broadcast a la red local desde un host Servidor a todos los host Clientes que se encuentren ejecutando la apliación Cliente.
+
+La aplicación de sockets Servidora utilizará un puerto aleatorio entre 50.000 y 51.000, y cada aplicación Cliente utiliza el puerto 2500 de su host.
+
+## Compilación
+
+Desde la consola pararse en el directorio del repositorio y ejecutar el comando:
+
+    make <target>
+
+Donde *target* puede ser alguna de las siguientes opciones:
+
+- *server:*     compila la aplicación Servidora para Windows
+
+- *client:*     compila la aplicación Cliente para Windows
+
+- *server_linux:* compila la aplicación Servidora para Linux
+
+- *client_linux:* compila la aplicación Cliente para Linux
+
+
+## Ejecución
+
+Para levantar el Servidor de Windows en necesario pasar por argumento al momento de ejecutarlo la IP de broadcast de la red local. Por ejemplo:
+
+    > server.exe 192.168.100.255
+
+Las demás aplicaciones no necesitan argumentos extras para su ejecución.
+
+
+## Debug
+
+La carpeta .vscode contiene los archivos *launch.json* y *tasks.json*
+
+En *launch.json*, en la etiqueta "program" se escribe la ruta donde estará el archivo ejecutable, incluyendo al ejecutable.
 Con la variable predefinida ${workspaceFolder} se obtiene la dirección del directorio del entorno de trabajo. Así, escribiendo
 
-    "program": "${workspaceFolder}\\main.exe"
+    "program": "${workspaceFolder}\\server.exe"
 
-el programa intentará ejecutar el archivo ejecutable "main.exe" que se encuentra en el entorno de trabajo.
+el programa intentará ejecutar el archivo ejecutable "server.exe" que se encuentra en el entorno de trabajo.
 
-En tasks.json, en la etiqueta "args" se escriben los argumentos del comando gcc. En nuestro caso, y para la organización del entorno, vamos a:
-
- 1) Crear el archivo ejecutable en el directorio principal del entorno de trabajo;
- 2) compilar el archivo principal .c que se encuentra en src/;
- 3) compilar los archivos .c que haya en src/implementations para que se implementen los archivos de cabecera;
- 4) agregar opciones para trabajar con sockets;
- 5) agregado de una opción para explicitar el directorio de archivos de cabecera.
-
-Estos argumentos quedarían como sigue...
+En *tasks.json*, en la etiqueta "args" se escriben los argumentos del comando gcc, lo cuales quedarían como sigue...
 
     "args": [
+        "-fdiagnostics-color=always",
         "-g",
         "-o",
-        "${workspaceFolder}\\main.exe",
-        "${workspaceFolder}\\src\\main.c",
-        "${workspaceFolder}\\src\\implementations\\*.c",
+        "${workspaceFolder}\\server.exe",
+        "${workspaceFolder}\\app_client\\src\\server.c",
         "-lws2_32",
         "-lwsock32",
         "-L",
-        "$MinGW\\lib",
-        "-I",
-        "${workspaceFolder}\\libraries"
+        "$MinGW\\lib"
     ]
 
-De esta forma, la estructura quedaría como sigue en el directorio principal de trabajo (ya sea el del servidor o el del cliente):
+## Estructura del proyecto
 
-EntornoTrabajo \
- ┣ .vscode \
- ┃ ┣ launch.json \
- ┃ ┗ tasks.json \
- ┣ libraries \
- ┣ src \
- ┃ ┣ implementations \
- ┃ ┗ main.c \
- ┗ main.exe 
- 
- 
-     while (1) {
-        printf("[SERVER]: ");
-        
-        do {
-            bzero(buffer, BUFFER_MAX);
-            fgets(buffer, BUFFER_MAX, stdin);
-                if((int)strlen(buffer)+1 > 199) flag_ok = 0;
-        } while ((int)strlen(buffer)+1 > 199 );
-        
-        if(flag_ok){
-            n = sendto(socketfd, buffer, BUFFER_MAX, 0, (struct sockaddr *)&client, sizeof(struct sockaddr_in));    
-        }
-        else{
-            printf("Tamanio de la trama excedido");
-            while(getchar() != '\n');
-            flag_ok = 1;
-        }
-        if (n < 0) {
-            printf("sendto()");
-        }
-        
-    }
-}
+La estructura final del proyecto es:
+
+    Entorno de Trabajo \
+        ┣ .vscode \
+            ┃ ┣ launch.json \
+              ┗ tasks.json \
+        ┣ app_client \
+            ┣ src \
+              ┗ client.c \
+        ┣ app_server \
+            ┣ src \
+              ┗ client.c \
+        ┣ docs \
+        ┣ examples \
+        ┗ server.exe 

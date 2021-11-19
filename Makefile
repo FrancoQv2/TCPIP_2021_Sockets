@@ -1,25 +1,22 @@
 SERVER = server
 CLIENT = client
 
-SERVER_WIN = server_win
-CLIENT_WIN = client_win
+SERVER_LINUX = server_linux
+CLIENT_LINUX = client_linux
 
 DIR_SERVER = app_server/src
 DIR_CLIENT = app_client/src
 
-IMP = dependencies/implementations
-LIB = dependencies/libraries
-
 FLGS = -lws2_32 -lwsock32
 
-server:
-	@gcc $(DIR_SERVER)/$(SERVER).c -o $(SERVER).out
+server: $(DIR_SERVER)/$(SERVER).c
+	@gcc -o $(SERVER).exe $(DIR_SERVER)/$(SERVER).c $(FLGS)
 
-server_win: $(DIR_SERVER)/$(SERVER_WIN).c
-	@gcc -o $(SERVER_WIN).exe $(DIR_SERVER)/$(SERVER_WIN).c $(IMP)/*.c $(FLGS) -I $(LIB)
+client: $(DIR_CLIENT)/$(CLIENT).c
+	@gcc -o $(CLIENT).exe $(DIR_CLIENT)/$(CLIENT).c $(FLGS)
 
-client:
-	@gcc $(DIR_CLIENT)/$(CLIENT).c -o $(CLIENT).out
+server_linux:
+	@gcc $(DIR_SERVER)/$(SERVER_LINUX).c -o $(SERVER_LINUX).out
 
-client_win: $(DIR_CLIENT)/$(CLIENT_WIN).c
-	@gcc -o $(CLIENT_WIN).exe $(DIR_CLIENT)/$(CLIENT_WIN).c $(IMP)/*.c $(FLGS) -I $(LIB)
+client_linux:
+	@gcc $(DIR_CLIENT)/$(CLIENT_LINUX).c -o $(CLIENT_LINUX).out

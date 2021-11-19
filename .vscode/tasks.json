@@ -2,21 +2,18 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "Compilar WIN Client",
+            "label": "Compile WIN Client",
             "command": "C:\\MinGW\\bin\\gcc.exe",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
                 "-o",
-                "${workspaceFolder}\\client_win.exe",
-                "${workspaceFolder}\\app_client\\src\\client_win.c",
-                "${workspaceFolder}\\dependencies\\implementations\\*.c",
+                "${workspaceFolder}\\client.exe",
+                "${workspaceFolder}\\app_client\\src\\client.c",
                 "-lws2_32",
                 "-lwsock32",
                 "-L",
-                "$MinGW\\lib",
-                "-I",
-                "${workspaceFolder}\\dependencies\\libraries"
+                "$MinGW\\lib"
             ],
             "options": {
                 "cwd": "${fileDirname}"
@@ -32,21 +29,18 @@
         },
         {
             "type": "cppbuild",
-            "label": "Compilar WIN Server",
+            "label": "Compile WIN Server",
             "command": "C:\\MinGW\\bin\\gcc.exe",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
                 "-o",
-                "${workspaceFolder}\\server_win.exe",
-                "${workspaceFolder}\\app_server\\src\\server_win.c",
-                "${workspaceFolder}\\dependencies\\implementations\\*.c",
+                "${workspaceFolder}\\server.exe",
+                "${workspaceFolder}\\app_server\\src\\server.c",
                 "-lws2_32",
                 "-lwsock32",
                 "-L",
-                "$MinGW\\lib",
-                "-I",
-                "${workspaceFolder}\\dependencies\\libraries"
+                "$MinGW\\lib"
             ],
             "options": {
                 "cwd": "${fileDirname}"
@@ -59,6 +53,29 @@
                 "isDefault": true
             },
             "detail": "Tarea generada por el depurador."
+        },
+        {
+            "type": "cppbuild",
+            "label": "Debug Linux",
+            "command": "/usr/bin/gcc",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                "-o",
+                "${workspaceFolder}/${fileBasenameNoExtension}.out"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "compiler: /usr/bin/gcc"
         }
     ],
     "version": "2.0.0"
